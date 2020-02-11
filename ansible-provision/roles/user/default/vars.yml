@@ -1,0 +1,6 @@
+user_name: "kadm"
+user_groups: ["docker", "{{ user_name }}"]
+user_shell: "/bin/bash"
+user_local_ssh_key_path: "/home/{{ user_name }}/.ssh"
+user_local_ssh_key: "rsa_ubuntu-master.pub"
+user_enable_passwordless_sudo: True
