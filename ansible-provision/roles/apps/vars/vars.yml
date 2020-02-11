@@ -1,0 +1,2 @@
+user_name: "kadm"
+user_local_kubernetes_path: "/home/{{ user_name }}/.kube"

@@ -1,0 +1,40 @@
+- name: Load user_password variable
+  include_vars:
+    file: vars/vars.yml
+- name: Load user variables
+  include_vars:
+    file: default/vars.yml
+- name: Creating user groups
+  group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ user_groups }}"
+  when: user_groups
+- name: Creating user
+  user:
+    name: "{{ user_name }}"
+    groups: "{{ user_groups }}"
+    password: "{{ user_password }}"
+    shell: "{{ user_shell }}"
+    create_home: yes
+    append: yes
+- name: Adding user to sudoers
+  copy:
+    content: "%{{ user_name }} ALL=(ALL) NOPASSWD:ALL"
+    dest: "/etc/sudoers.d/{{ user_name }}"
+    owner: "root"
+    group: "root"
+    mode: '0440'
+  when: user_enable_passwordless_sudo
+- name: Copy public rsa key
+  copy:
+    src: "files/{{ user_local_ssh_key }}"
+    dest: "{{ user_local_ssh_key_path }}"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: '0644'
+- name: Set authorized key taken from file
+  authorized_key:
+    user: "{{ user_name }}"
+    state: present
+    key: "{{ lookup('file', '{{ user_local_ssh_key_path }}/{{ user_local_ssh_key }}') }}"

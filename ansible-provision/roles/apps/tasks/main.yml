@@ -1,0 +1,48 @@
+- name: Load user variables
+  include_vars:
+    file: vars/vars.yml
+- name: Disable SWAP in fstab
+  lineinfile:
+    dest: /etc/fstab
+    regexp: '^/[\S]+\s+none\s+swap '
+    state: absent
+- name: Disable SWAP in the system
+  command:
+    cmd: swapoff -a
+- name: Check ca-certificates directory exists
+  stat:
+    path: /usr/share/ca-certificates
+  register: stat_result
+- name: Creating directory for certificates if not exists
+  file:
+    path: /usr/share/ca-certificates
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: stat_result.stat.exists == False
+- import_tasks: add-repos.yml
+- import_tasks: install-packages.yml
+- import_tasks: enable-services.yml
+- name: Starting Kubernetes
+  command: kubeadm init
+  register: kube
+- debug:
+    var: kube.stdout_lines
+- name: Check .kube directory exists
+  stat:
+    path: "{{ user_local_kubernetes_path }}"
+  register: stat_result
+- name: Create .kube directory if not existis
+  file:
+    path: "{{ user_local_kubernetes_path }}"
+    state: directory
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: '0755'
+  when: stat_result.stat.exists == False
+- name: Add admin config
+  command:
+    cmd: cp /etc/kubernetes/admin.conf {{ user_local_kubernetes_path }}/config \
+         && chown {{ user_name }}:{{ user_name }} {{ user_local_kubernetes_path }}/config \
+         && chmod 0664 {{ user_local_kubernetes_path }}/config
