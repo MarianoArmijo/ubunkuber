@@ -1,0 +1,28 @@
+- name: Configure docker daemon
+  copy:
+    content: |
+      {
+        "exec-opts": ["native.cgroupdriver=systemd"],
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "100m"
+        },
+        "storage-driver": "overlay2"
+      }
+    owner: root
+    group: root
+    mode: '0640'
+    dest: /etc/docker/daemon.json
+- name: Daemon reload
+  command:
+    cmd: systemctl daemon-reload
+- name: Enabling and starting docker
+  service:
+    name: docker
+    state: restarted
+    enabled: yes
+- name: Enabling and starting kubelet
+  service:
+    name: kubelet
+    state: started
+    enabled: yes

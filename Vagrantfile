@@ -101,13 +101,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
+  config.vm.provision "file", source: ".vault_pass", destination: "/tmp/.vault_pass"
   config.vm.provision "shell", run: "always", inline: <<-SHELL
-    sudo apt-add-repository -y ppa:ansible/ansible && sudo apt update -y && sudo apt install -y ansible
+    sudo apt-add-repository -y ppa:ansible/ansible && sudo apt update -y && sudo apt install -y ansible \
+    && sudo chmod 0600 /tmp/.vault_pass
   SHELL
+
   #
   # Run Ansible from the Vagrant Host
   #
   config.vm.provision "ansible_local" do |ansible|
-    ansible.playbook = "./ansible-provision/playbook.yml"
+    ansible.playbook = "/vagrant/ansible-provision/site.yml"
+    ansible.vault_password_file = "/tmp/.vault_pass"
   end
 end

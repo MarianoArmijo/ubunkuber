@@ -1,2 +1,6 @@
 *.log
 .vagrant
+minicube
+.vault_pass
+.idea
+*.iml

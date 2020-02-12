@@ -1,0 +1,10 @@
+- hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Import user role
+      import_role:
+        name: user
+    - name: Import apps role
+      import_role:
+        name: apps

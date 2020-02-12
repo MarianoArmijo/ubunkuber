@@ -1,8 +1,0 @@
-- name: Enabling and starting docker daemon
-  service:
-    name: docker
-    state: started
-    enabled: yes
-- name: Starting minikube
-  command:
-    cmd: minikube start --vm-driver=none --kubernetes-version=1.17.0
